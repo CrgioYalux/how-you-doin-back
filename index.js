@@ -2,14 +2,13 @@
 const app = require('express')()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const next = require('next')
+const cors = require('cors')
 
 const port = process.env.PORT || 3000
-const dev = process.env.NODE_ENV !== 'production'
-const nextApp = next({dev})
-const nextHandler = nextApp.getRequestHandler()
 
-const {createChatroom, checkIfDocExists, sendMessage, getStoredMessages} = require('./firebase/client.js')
+const {createChatroom, checkIfDocExists, sendMessage, getStoredMessages} = require('./firebase/client')
+
+app.use(cors())
 
 // Socket io
 
@@ -34,28 +33,27 @@ io.on('connection', socket => {
 })
 
 
+app.get('/messages/:id', (req, res) => {
+checkIfDocExists(req.params.id).then((exists) => {
+    if (exists) {
+        getStoredMessages(req.params.id)
+            .then(
+                chat => {
+                    res.json(chat)
+                }
+            )        
+    }
+    else {
+        res.json([])
+    }
+})
+})
 
-nextApp.prepare().then(() => {
-    app.get('/messages/:id', (req, res) => {
-    checkIfDocExists(req.params.id).then((exists) => {
-        if (exists) {
-            getStoredMessages(req.params.id)
-                .then(
-                    chat => {
-                        res.json(chat)
-                    }
-                )        
-        }
-        else {
-            res.json([])
-        }
-    })
-    })
-    app.get('*', (req, res) => {
-        return nextHandler(req, res)
-    })
-    server.listen(port, err => {
-        if (err) throw err
-        console.log('> Ready on http://localhost:', port)
-    })
+app.get('*', (req, res) => {
+    return nextHandler(req, res)
+})
+
+server.listen(port, err => {
+    if (err) throw err
+    console.log('> Ready on http://localhost:', port)
 })

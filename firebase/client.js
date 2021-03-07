@@ -1,8 +1,19 @@
 require('dotenv').config()
-
+const firebase = require('firebase/app')
+require('firebase/firestore')
 // firebase init
 
-!firebase.apps.length && firebase.initializeApp(process.env.FIREBASE_CONFIG)
+const firebaseConfig = {
+    apiKey: "AIzaSyCx-WzyCo-VJbDSiJi2ThXaKLYs3przBaw",
+    authDomain: "how-you-doin-f88fa.firebaseapp.com",
+    projectId: "how-you-doin-f88fa",
+    storageBucket: "how-you-doin-f88fa.appspot.com",
+    messagingSenderId: "48326034041",
+    appId: "1:48326034041:web:8c9ffeb1948c4cf84ccaa8",
+    measurementId: "G-8TDH3N9LRZ"
+}
+
+!firebase.apps.length && firebase.initializeApp(firebaseConfig)
 const db = firebase.firestore()
 
 const getStoredMessages = async (id) => {
